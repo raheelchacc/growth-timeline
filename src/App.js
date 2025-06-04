@@ -6,7 +6,7 @@ import { Briefcase, Target, CalendarDays, Zap, CheckCircle, AlertTriangle, Loade
 
 
 // Firebase config and App ID (these will be provided by the environment)
-const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "YOUR_API_KEY", authDomain: "YOUR_AUTH_DOMAIN", projectId: "YOUR_PROJECT_ID" };
+const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "AIzaSyDT0ZWOrHr3DkGj5jYKbHopYx4-8ET1Zqs", authDomain: "growth-timeline-chacc.firebaseapp.com", projectId: "growth-timeline-chacc", appId:"1:76721026482:web:ba7ec801335f27da7b60ab" };
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-growth-timeline-app';
 
 
