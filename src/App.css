@@ -11,6 +11,10 @@
     animation: App-logo-spin infinite 20s linear;
   }
 }
+.md\:w-auto {
+        width: auto;
+        background: #5ed3fc;
+    }
 div#root
  {
     background: #000000;
