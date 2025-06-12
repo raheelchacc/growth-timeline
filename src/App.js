@@ -131,7 +131,7 @@ useEffect(() => {
         await signInAnonymously(firebaseAuth);
       } catch (authError) {
         console.error("Error during anonymous authentication:", authError);
-        setError("Authentication failed. Please ensure anonymous sign-in is enabled in Firebase.");
+        //setError("Authentication failed. Please ensure anonymous sign-in is enabled in Firebase.");
       }
     }
 
