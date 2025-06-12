@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './App.css'; // ✅ Add this line just after React
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, serverTimestamp, setDoc } from 'firebase/firestore';
