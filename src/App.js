@@ -253,7 +253,7 @@ useEffect(() => {
                  await saveTimelineToFirestore(parsedJson); 
             } else {
                 console.warn("User ID not available when trying to save timeline. It might be saved upon next auth state change if logic is added for it.");
-                setError("Timeline generated but could not be saved immediately as user ID was not available. It might be saved later.");
+              //  setError("Timeline generated but could not be saved immediately as user ID was not available. It might be saved later.");
             }
         } catch (jsonParseError) {
             console.error("Error parsing JSON response from AI:", jsonParseError, "Raw JSON:", rawJson);
