@@ -23,6 +23,8 @@ import {
 
 // Firebase config and App ID (these will be provided by the environment)
 // IMPORTANT: Replace with your actual Firebase config if not using the __firebase_config global
+// part1 adding the below line to store the responses or history
+const [savedTimelines, setSavedTimelines] = useState([]);
 const firebaseConfig = process.env.REACT_APP_FIREBASE_CONFIG
   ? JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG)
   : {
@@ -140,6 +142,29 @@ useEffect(() => {
 
   return () => unsubscribe();
 }, []);
+
+  // part2 Adding the code to store the responses 
+useEffect(() => {
+    if (!db || !userId) return;
+
+    const timelineCollectionPath = `artifacts/${appId}/users/${userId}/timelines`;
+    const q = query(collection(db, timelineCollectionPath));
+
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const timelinesData = [];
+        querySnapshot.forEach((doc) => {
+            timelinesData.push({ id: doc.id, ...doc.data() });
+        });
+        timelinesData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        setSavedTimelines(timelinesData);
+    }, (error) => {
+        console.error("Error fetching saved timelines:", error);
+        setError("Could not fetch previously saved timelines.");
+    });
+
+    return () => unsubscribe();
+}, [db, userId]);
+  
 
 
 // Half part of code
@@ -487,6 +512,30 @@ useEffect(() => {
             )}
           </div>
         </div>
+
+// part3 adding code to show the result
+   {/* Saved Timelines Section */}
+                {savedTimelines.length > 0 && (
+                    <div className="mt-12 pt-8 border-t border-slate-700/50">
+                        <h3 className="text-2xl font-semibold text-center text-sky-300 mb-6">Your Saved Timelines</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {savedTimelines.map((timeline) => (
+                                <div key={timeline.id} className="bg-slate-700/50 p-4 rounded-lg shadow-md border border-slate-600 flex flex-col justify-between hover:border-sky-500 transition-colors">
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-200 truncate" title={timeline.businessType}>{timeline.businessType || 'Untitled Timeline'}</p>
+                                        <p className="text-xs text-slate-400 mt-1">Goals: <span className="italic">{timeline.growthGoals?.substring(0, 40) || 'N/A'}...</span></p>
+                                        <p className="text-xs text-slate-500 mt-2">Saved: {timeline.createdAt ? new Date(timeline.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</p>
+                                    </div>
+                                    <div className="flex items-center space-x-2 mt-4">
+                                        <button onClick={() => { setTimelineData(timeline.timeline); document.getElementById('timeline-results-section')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex-grow text-sm bg-sky-600 hover:bg-sky-500 text-white font-semibold py-2 px-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400">View</button>
+                                        <button onClick={() => setConfirmingDelete(timeline.id)} className="p-2 bg-red-800/50 hover:bg-red-800/80 rounded-lg text-red-300 transition-colors"><Trash2 className="h-4 w-4"/></button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
 
         {/* Timeline Display Section - Detailed Cards */}
         {timelineData && timelineData.phases && timelineData.phases.length > 0 && (
