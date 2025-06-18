@@ -108,6 +108,8 @@ const App = () => {
 
   // part1 adding the below line to store the responses or history
 const [savedTimelines, setSavedTimelines] = useState([]);
+const [confirmingDelete, setConfirmingDelete] = useState(null); 
+
   // Initialize Firebase and Auth
 useEffect(() => {
   let app;
@@ -516,7 +518,7 @@ useEffect(() => {
 
 // part3 adding code to show the result
    {/* Saved Timelines Section */}
-                {savedTimelines.length > 0 && (
+  { savedTimelines.length > 0 && (
                     <div className="mt-12 pt-8 border-t border-slate-700/50">
                         <h3 className="text-2xl font-semibold text-center text-sky-300 mb-6">Your Saved Timelines</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
