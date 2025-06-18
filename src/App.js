@@ -23,8 +23,7 @@ import {
 
 // Firebase config and App ID (these will be provided by the environment)
 // IMPORTANT: Replace with your actual Firebase config if not using the __firebase_config global
-// part1 adding the below line to store the responses or history
-const [savedTimelines, setSavedTimelines] = useState([]);
+
 const firebaseConfig = process.env.REACT_APP_FIREBASE_CONFIG
   ? JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG)
   : {
@@ -107,6 +106,8 @@ const App = () => {
   const [error, setError] = useState(null); // Can be a string for error messages or an object for more details
   const [apiKey, setApiKey] = useState('AIzaSyCYSXrVo-QABDxPagpw2DI5Y9D55cRolUc'); // User-provided API key for Gemini
 
+  // part1 adding the below line to store the responses or history
+const [savedTimelines, setSavedTimelines] = useState([]);
   // Initialize Firebase and Auth
 useEffect(() => {
   let app;
