@@ -104,7 +104,7 @@ const App = () => {
   const [timelineData, setTimelineData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null); // Can be a string for error messages or an object for more details
-  const [apiKey, setApiKey] = useState('AIzaSyCYSXrVo-QABDxPagpw2DI5Y9D55cRolUc'); // User-provided API key for Gemini
+  const [apiKey, setApiKey] = useState(''); // User-provided API key for Gemini
 
   // part1 adding the below line to store the responses or history
 const [savedTimelines, setSavedTimelines] = useState([]);
