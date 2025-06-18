@@ -1,34 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import './App.css'; // ✅ Add this line just after React
-import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, serverTimestamp, setDoc } from 'firebase/firestore';
-
-import { collection, query, onSnapshot } from "firebase/firestore";
-import { db } from "./firebase"; // Adjust path to your firebase config file
-
-// Icon import (assuming you're using react-feather)
-import { Trash2 } from "react-feather";
-
-// Other common React imports (if you use them)
-import ReactDOM from "react-dom"; // if needed
-
+// import React, { useState, useEffect } from 'react';
+//import './App.css'; // ✅ Add this line just after React
+//import { initializeApp } from 'firebase/app';
+//import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
+//import { getFirestore, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 // If you use other Firebase functions, import them similarly
-import {
-  AlertTriangle,
-  Info,
-  Loader2,
-  Brain,
-  Briefcase,
-  Zap,
-  Target,
-  Lightbulb,
-  ListChecks,
-  Users,
-  BarChart2,
-  CalendarDays,
-  ChevronsRight
-} from 'lucide-react';
+// import {AlertTriangle,  Info,  Loader2,  Brain,  Briefcase,  Zap,  Target,  Lightbulb,  ListChecks,  Users,  BarChart2,  CalendarDays,  ChevronsRight} from 'lucide-react'; 
+
+
+import React, { useState, useEffect, useCallback } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getFirestore, collection, addDoc, query, onSnapshot, doc, serverTimestamp, setDoc, deleteDoc } from 'firebase/firestore';
+import { Briefcase, Target, CalendarDays, Zap, CheckCircle, AlertTriangle, Loader2, Save, ListChecks, Lightbulb, Users, BarChart2, Info, Brain, ChevronsRight, Trash2 } from 'lucide-react';
+
+
+
 
 
 
