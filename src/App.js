@@ -3,6 +3,17 @@ import './App.css'; // ✅ Add this line just after React
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, serverTimestamp, setDoc } from 'firebase/firestore';
+
+import { collection, query, onSnapshot } from "firebase/firestore";
+import { db } from "./firebase"; // Adjust path to your firebase config file
+
+// Icon import (assuming you're using react-feather)
+import { Trash2 } from "react-feather";
+
+// Other common React imports (if you use them)
+import ReactDOM from "react-dom"; // if needed
+
+// If you use other Firebase functions, import them similarly
 import {
   AlertTriangle,
   Info,
