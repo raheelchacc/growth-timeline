@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { initializeApp } from 'firebase/app';
 import './App.css'; // ✅ Add this line just after React
+import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, serverTimestamp, setDoc, collection, query, getDocs } from 'firebase/firestore';
 import {
@@ -22,20 +22,29 @@ import {
     ChevronUp
 } from 'lucide-react';
 
+// --- IMPORTANT FOR LOCAL DEVELOPMENT ---
+// 1. Go to your Firebase project settings.
+// 2. In the "General" tab, scroll down to "Your apps".
+// 3. Find your web app and click on "SDK setup and configuration".
+// 4. Select "Config".
+// 5. Copy the entire firebaseConfig object and PASTE IT HERE, replacing these placeholder values.
+const firebaseConfig = {
+apiKey: "AIzaSyDT0ZWOrHr3DkGj5jYKbHopYx4-8ET1Zqs",
+  authDomain: "growth-timeline-chacc.firebaseapp.com",
+  projectId: "growth-timeline-chacc",
+  storageBucket: "growth-timeline-chacc.firebasestorage.app",
+  messagingSenderId: "76721026482",
+  appId: "1:76721026482:web:ba7ec801335f27da7b60ab",
+  measurementId: "G-SY6Z199V6B"
+};
 
+// This logic handles both local development (using the config above)
+// and a production environment where variables might be injected globally.
+const finalFirebaseConfig = (typeof window !== 'undefined' && window.__firebase_config)
+    ? JSON.parse(window.__firebase_config)
+    : firebaseConfig;
 
-// Firebase config and App ID (these will be provided by the environment)
-// IMPORTANT: Replace with your actual Firebase config if not using the __firebase_config global
-const firebaseConfig = process.env.REACT_APP_FIREBASE_CONFIG
-  ? JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG)
-  : {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID"
-    };
-
-const appId = process.env.REACT_APP_APP_ID || "default-growth-timeline-app";
-
+const appId = (typeof window !== 'undefined' && window.__app_id) || finalFirebaseConfig.appId || 'default-growth-timeline-app';
 
 
 // Helper to generate a unique ID for new documents if needed
@@ -86,7 +95,7 @@ const HorizontalTimelineVisual = ({ phases }) => {
     );
 };
 
-// *** NEW *** History Panel Component
+// History Panel Component
 const HistoryPanel = ({ history, onLoad, isVisible, toggleVisibility }) => {
     if (!history || history.length === 0) return null;
 
@@ -98,7 +107,7 @@ const HistoryPanel = ({ history, onLoad, isVisible, toggleVisibility }) => {
             >
                 <div className="flex items-center">
                     <History className="h-6 w-6 mr-3 text-sky-400" />
-                    <h2 className="text-xl font-semibold text-slate-100">Generation History</h2>
+                    <h2 className="text-xl font-semibold text-slate-100">Prompt History</h2>
                 </div>
                 {isVisible ? <ChevronUp className="h-6 w-6 text-slate-400" /> : <ChevronDown className="h-6 w-6 text-slate-400" />}
             </button>
@@ -113,7 +122,7 @@ const HistoryPanel = ({ history, onLoad, isVisible, toggleVisibility }) => {
                                 >
                                     <p className="font-semibold text-sky-300">{item.timeline.timelineTitle}</p>
                                     <p className="text-xs text-slate-400 mt-1">
-                                        Generated on: {new Date(item.createdAt.seconds * 1000).toLocaleString()}
+                                        {item.createdAt?.seconds ? new Date(item.createdAt.seconds * 1000).toLocaleString() : 'Just now'}
                                     </p>
                                 </button>
                             </li>
@@ -144,16 +153,16 @@ const App = () => {
     const [error, setError] = useState(null);
     const [apiKey, setApiKey] = useState('AIzaSyCYSXrVo-QABDxPagpw2DI5Y9D55cRolUc');
 
-    // *** NEW *** History State
+    // History State
     const [history, setHistory] = useState([]);
-    const [isHistoryVisible, setIsHistoryVisible] = useState(false);
+    const [isHistoryVisible, setIsHistoryVisible] = useState(true); // Default to visible
 
 
     // Initialize Firebase and Auth
     useEffect(() => {
         let app;
         try {
-            app = initializeApp(firebaseConfig);
+            app = initializeApp(finalFirebaseConfig);
         } catch (e) {
             console.error("Firebase initialization error:", e);
             setError("Failed to initialize Firebase. Please check your Firebase configuration.");
@@ -179,6 +188,7 @@ const App = () => {
                     }
                 } catch (authError) {
                     console.error("Error during authentication:", authError);
+                    setError(`Authentication failed: ${authError.message}. Please ensure your Firebase config is correct and anonymous sign-in is enabled.`);
                 }
             }
             setIsAuthReady(true);
@@ -187,7 +197,7 @@ const App = () => {
         return () => unsubscribe();
     }, []);
 
-    // *** NEW *** Function to fetch history from Firestore
+    // Function to fetch history from Firestore
     const fetchHistory = useCallback(async () => {
         if (!db || !userId) return;
         try {
@@ -195,23 +205,23 @@ const App = () => {
             const q = query(collection(db, timelineCollectionPath));
             const querySnapshot = await getDocs(q);
             const historyData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            // Sort by creation date, newest first
+            
             if (historyData.every(item => item.createdAt)) {
                 historyData.sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
             }
             setHistory(historyData);
         } catch (e) {
             console.error("Error fetching history:", e);
-            setError("Could not load generation history.");
+            setError("Could not load generation history. Check Firestore rules.");
         }
     }, [db, userId]);
 
     // Effect to fetch history once auth is ready
     useEffect(() => {
-        if (isAuthReady) {
+        if (isAuthReady && userId) {
             fetchHistory();
         }
-    }, [isAuthReady, fetchHistory]);
+    }, [isAuthReady, userId, fetchHistory]);
 
 
     // LLM Interaction to generate timeline
@@ -231,16 +241,11 @@ const App = () => {
 
         const prompt = `
           Analyze the following business information and generate a strategic growth timeline.
-          The timeline should be based on common growth models, industry best practices, and patterns observed in similar successful businesses.
           Provide a detailed, actionable, and phased approach.
-
           Business Type/Industry: ${businessType}
           Current Business Position: ${businessPosition}
           Key Growth Goals: ${growthGoals}
-
-          Please structure your response as a JSON object adhering to the following schema.
-          The timeline should include a main title and several distinct phases. Each phase should have a name, suggested duration,
-          key objectives, primary focus areas, potential metrics to track, and any relevant notes or advice.
+          Please structure your response as a JSON object.
         `;
 
         const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
@@ -251,19 +256,18 @@ const App = () => {
                 responseSchema: {
                     type: "OBJECT",
                     properties: {
-                        timelineTitle: { type: "STRING", description: "A concise title for the overall growth timeline (e.g., 'Strategic Growth Roadmap for [Business Type]')." },
+                        timelineTitle: { type: "STRING" },
                         phases: {
                             type: "ARRAY",
-                            description: "An array of distinct phases or major milestones in the growth timeline.",
                             items: {
                                 type: "OBJECT",
                                 properties: {
-                                    phaseName: { type: "STRING", description: "Name of the growth phase (e.g., 'Year 1: Foundation & Early Traction')." },
-                                    duration: { type: "STRING", description: "Suggested duration for this phase (e.g., 'Months 1-6', 'Q1-Q2 202X')." },
-                                    keyObjectives: { type: "ARRAY", description: "List of key objectives for this phase.", items: { type: "STRING" } },
-                                    focusAreas: { type: "ARRAY", description: "Primary areas of focus during this phase.", items: { type: "STRING" } },
-                                    potentialMetrics: { type: "ARRAY", description: "Key performance indicators to track progress.", items: { type: "STRING" } },
-                                    notes: { type: "STRING", description: "Any additional notes, advice, or considerations for this phase." }
+                                    phaseName: { type: "STRING" },
+                                    duration: { type: "STRING" },
+                                    keyObjectives: { type: "ARRAY", items: { type: "STRING" } },
+                                    focusAreas: { type: "ARRAY", items: { type: "STRING" } },
+                                    potentialMetrics: { type: "ARRAY", items: { type: "STRING" } },
+                                    notes: { type: "STRING" }
                                 },
                                 required: ["phaseName", "duration", "keyObjectives", "focusAreas", "potentialMetrics", "notes"]
                             }
@@ -286,7 +290,7 @@ const App = () => {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: { message: "Unknown API error format." } }));
-                throw new Error(`API request failed with status ${response.status}: ${errorData?.error?.message || 'Unknown error'}`);
+                throw new Error(`API request failed: ${errorData?.error?.message || 'Unknown error'}`);
             }
 
             const result = await response.json();
@@ -300,59 +304,63 @@ const App = () => {
                         await saveTimelineToFirestore(parsedJson);
                     }
                 } catch (jsonParseError) {
-                    console.error("Error parsing JSON response from AI:", jsonParseError, "Raw JSON:", rawJson);
-                    setError("Failed to parse the timeline data from AI. The format was unexpected.");
+                    console.error("Error parsing JSON from AI:", jsonParseError, "Raw JSON:", rawJson);
+                    setError("Failed to parse the timeline data from AI.");
                 }
             } else {
-                console.error("Unexpected API response structure:", result);
                 setError("Failed to generate timeline. The AI returned an unexpected response.");
             }
         } catch (e) {
             console.error("Error generating timeline:", e);
-            setError(`An error occurred: ${e.message}. If using your own API key, please ensure it is valid and has the Gemini API enabled.`);
+            setError(`An error occurred: ${e.message}`);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Save timeline to Firestore and update history
+    // **IMPROVED** Save timeline to Firestore and update history
     const saveTimelineToFirestore = async (dataToSave) => {
         if (!db || !userId) {
             setError("Database or User ID not available. Cannot save timeline.");
             return;
         }
 
+        const timelineDocId = generateId();
+        const newHistoryItem = {
+            id: timelineDocId,
+            growthGoals,
+            businessType,
+            businessPosition,
+            timeline: dataToSave,
+            createdAt: new Date(), // Use client-side Date object for immediate display
+            appId,
+            userId,
+        };
+
+        // **IMPROVEMENT**: Update local state immediately for instant UI feedback.
+        setHistory(prevHistory => [newHistoryItem, ...prevHistory]);
+
+        // Now, try to save to Firestore.
         try {
             const timelineCollectionPath = `artifacts/${appId}/users/${userId}/timelines`;
-            const timelineDocId = generateId();
             const timelineDocRef = doc(db, timelineCollectionPath, timelineDocId);
 
-            const newHistoryItem = {
-                growthGoals,
-                businessType,
-                businessPosition,
-                timeline: dataToSave,
-                createdAt: new Date(), // Use client-side timestamp for immediate sorting
-                appId,
-                userId,
-            };
+            // We save a slightly different object to Firestore, with a server timestamp
+            const dataForFirestore = { ...newHistoryItem, createdAt: serverTimestamp() };
+            delete dataForFirestore.id; // Don't save the id field inside the document itself
 
-            await setDoc(timelineDocRef, {
-                ...newHistoryItem,
-                createdAt: serverTimestamp() // Overwrite with server timestamp for consistency
-            });
-            
-            // *** NEW ***: Prepend new item to history state for instant UI update
-            setHistory(prevHistory => [{ id: timelineDocId, ...newHistoryItem, createdAt: { seconds: newHistoryItem.createdAt.getTime() / 1000 } }, ...prevHistory]);
-
+            await setDoc(timelineDocRef, dataForFirestore);
+            // The data is saved. If the user reloads, fetchHistory will get the server version.
 
         } catch (e) {
             console.error("Error saving timeline to Firestore:", e);
-            setError("Failed to save timeline to database. Error: " + e.message);
+            // Show an error, but don't remove the item from the local history state.
+            // The user can still interact with it during this session.
+            setError("Timeline saved for this session, but failed to save to the cloud. Check Firestore rules and network.");
         }
     };
     
-    // *** NEW *** Function to load a timeline from history
+    // Function to load a timeline from history
     const loadTimelineFromHistory = (historyItem) => {
         setGrowthGoals(historyItem.growthGoals);
         setBusinessType(historyItem.businessType);
@@ -424,7 +432,6 @@ const App = () => {
                 {userId && <p className="mt-2 text-xs text-slate-500">User ID: {userId} (App ID: {appId})</p>}
             </header>
             
-            {/* *** NEW *** History Panel Integration */}
             <HistoryPanel 
                 history={history} 
                 onLoad={loadTimelineFromHistory} 
