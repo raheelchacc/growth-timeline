@@ -1,6 +1,28 @@
 .App {
   text-align: center;
 }
+.max-w-4xl.mx-auto.my-8 {
+margin: 10px auto !important;
+}
+button.w-full.flex.justify-between.items-center,
+.flex.justify-between.items-start.mb-5,
+li.flex.items-center.justify-between.p-3 {
+justify-content: space-between !important;
+}
+h2.text-3xl.font-bold.text-center {
+font-size: 30px !important;
+color: #ffffff !important;
+}
+span.flex-shrink-0.flex {
+margin: 10px !important;
+}
+
+span.flex-shrink-0.flex.bg-green-500 {
+background-color: #0ee97c !important;
+}
+button.mt-6.w-full.group.relative {
+background: #2e95e0 !important;
+}
 .App-logo {
   height: 40vmin;
   pointer-events: none;
