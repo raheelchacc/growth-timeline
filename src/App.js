@@ -30,12 +30,13 @@ import {
 // 4. Select "Config".
 // 5. Copy the entire firebaseConfig object and PASTE IT HERE, replacing these placeholder values.
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+     apiKey: "AIzaSyDT0ZWOrHr3DkGj5jYKbHopYx4-8ET1Zqs",
+  authDomain: "growth-timeline-chacc.firebaseapp.com",
+  projectId: "growth-timeline-chacc",
+  storageBucket: "growth-timeline-chacc.firebasestorage.app",
+  messagingSenderId: "76721026482",
+  appId: "1:76721026482:web:ba7ec801335f27da7b60ab",
+  measurementId: "G-SY6Z199V6B"
 };
 
 // This logic handles both local development (using the config above)
