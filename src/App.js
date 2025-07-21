@@ -159,7 +159,7 @@ const App = () => {
     
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [apiKey, setApiKey] = useState('');
+    const [apiKey, setApiKey] = useState('AIzaSyCYSXrVo-QABDxPagpw2DI5Y9D55cRolUc');
 
     // History State
     const [history, setHistory] = useState([]);
