@@ -108,7 +108,7 @@ const HistoryPanel = ({ history, onLoad, isVisible, toggleVisibility, onDelete }
             >
                 <div className="flex items-center">
                     <History className="h-6 w-6 mr-3 text-sky-400" />
-                    <h2 className="text-xl font-semibold text-slate-100">Generation History</h2>
+                    <h2 className="text-xl font-semibold text-slate-100">History</h2>
                 </div>
                 {isVisible ? <ChevronUp className="h-6 w-6 text-slate-400" /> : <ChevronDown className="h-6 w-6 text-slate-400" />}
             </button>
